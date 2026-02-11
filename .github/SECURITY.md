@@ -7,8 +7,8 @@ to the latest supported version before reporting issues.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
-| < 1.0.0 | :x:                |
+| 0.0.1   | :white_check_mark: |
+| < 0.0.1 | :x:                |
 
 ## Reporting a Vulnerability
 
