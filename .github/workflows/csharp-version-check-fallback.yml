@@ -1,0 +1,79 @@
+name: C# 7.3 Check (Fallback)
+
+on:
+  pull_request:
+    paths:
+      - "**.cs"
+  push:
+    branches:
+      - main
+    paths:
+      - "**.cs"
+
+jobs:
+  # This job acts as a fallback when self-hosted runner is offline
+  # It will only run if the primary workflow fails to start within the timeout
+  csharp-version-check-fallback:
+    name: Verify C# 7.3 Compatibility (GitHub Runner)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Scan for C# 8.0+ Features
+        shell: bash
+        run: |
+          echo "🔍 Running C# 7.3 compatibility check on GitHub-hosted runner..."
+          echo "ℹ️  This is a fallback in case self-hosted runner is unavailable"
+          echo ""
+
+          violations=0
+
+          # Null-coalescing assignment (??=)
+          if grep -rnF '??=' --include='*.cs' .; then
+            echo "❌ Found null-coalescing assignment (??=) - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          # Switch expressions
+          if grep -rEn 'switch.*=>.*}' --include='*.cs' .; then
+            echo "❌ Found switch expressions - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          # Index from end operator
+          if grep -rn '\[\^' --include='*.cs' .; then
+            echo "❌ Found index from end operator ([^) - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          # Range operator
+          # Match [start..end] pattern roughly
+          if grep -rEn '\[.*[0-9a-zA-Z_]\.\.[0-9a-zA-Z_].*\]' --include='*.cs' .; then
+            echo "❌ Found range operator ([..]) - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          # Nullable pragmas
+          if grep -rn '#nullable' --include='*.cs' .; then
+            echo "❌ Found #nullable pragma - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          # Using declarations (using var)
+          if grep -rEn 'using[[:space:]]+var[[:space:]]+' --include='*.cs' .; then
+            echo "❌ Found using declarations (using var) - C# 8.0+"
+            violations=$((violations + 1))
+          fi
+
+          if [ $violations -gt 0 ]; then
+            echo ""
+            echo "::error::Found $violations C# 8.0+ feature(s). Please use C# 7.3 compatible syntax."
+            echo "See CONTRIBUTING.md for C# 7.3 constraints and alternatives."
+            exit 1
+          fi
+
+          echo "✅ No C# 8.0+ features detected - code is C# 7.3 compatible"

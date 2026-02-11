@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version Tag (e.g. v1.5.5)"
+        required: false
+        default: ""
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Extract Release Notes
+        id: extract_notes
+        uses: ffurrer2/extract-release-notes@v3
+        with:
+          changelog_file: CHANGELOG.md
+
+      - name: Validate release artifacts
+        run: |
+          set -euo pipefail
+
+          artifacts=(
+            "GiveawayBot.cs"
+            "CHANGELOG.md"
+          )
+
+          for artifact in "${artifacts[@]}"; do
+            if [[ ! -f "$artifact" ]]; then
+              echo "::error::Release artifact '$artifact' is missing. Update .github/workflows/release.yml before tagging a release."
+              exit 1
+            fi
+          done
+
+      - name: Calculate Checksum
+        id: shasum
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            echo "sha=$(Get-FileHash GiveawayBot.cs -Algorithm SHA256).Hash.ToLower()" >> $GITHUB_OUTPUT
+          else
+            echo "sha=$(sha256sum GiveawayBot.cs | awk '{print $1}')" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: |
+            ${{ steps.extract_notes.outputs.release_notes }}
+
+            SHA256: ${{ steps.shasum.outputs.sha }}
+
+            ---
+            **Full Documentation**: https://github.com/Sythsaz/Giveaway-Bot/wiki
+          files: |
+            GiveawayBot.cs
+            CHANGELOG.md

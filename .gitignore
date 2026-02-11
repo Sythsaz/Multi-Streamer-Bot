@@ -1,0 +1,39 @@
+# Standard C# Agent rules (not part of the project)
+.clinerules/
+
+# Build outputs
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.lock.json
+*.exe
+
+# Streamer.bot proprietary files (DO NOT COMMIT)
+*.dll
+*.pdb
+!StreamerBot.Plugin.Interface.dll
+!StreamerBot.Common.dll
+*.csproj.user
+
+# Antigravity/Agent files
+.agent/
+.gemini/
+.vscode/
+*.code-workspace
+
+# User configuration and secrets
+secrets.json
+giveaway_config.json
+Giveaway Helper/config/
+Giveaway Helper/logs/
+Giveaway Helper/dumps/
+Giveaway Helper/state/
+
+# Mac (just in case)
+.DS_Store
+
+# Diagnostic/Debug files
+preprocessed.xml

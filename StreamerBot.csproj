@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net481</TargetFramework>
+    <Version>1.5.11</Version>
+    <!-- Enforce C# 13.0 compatibility (Streamer.bot runtime constraint: .NET 4.8.1) -->
+    <LangVersion>13.0</LangVersion>
+    <!-- Enable nullable reference types (supported in C# 8.0+) -->
+    <Nullable>enable</Nullable>
+    <!-- Disable implicit usings (generates global using directives - C# 10.0+) -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <NoWarn>CS0114</NoWarn>
+
+    <!--
+      Set the following directory with your Streamer.bot install location.
+      For local development, copy 'StreamerBot.csproj.user.template' to 'StreamerBot.csproj.user'
+      (ignored by git) and set your custom path there.
+    -->
+    <StreamerBotPath Condition="'$(StreamerBotPath)' == ''">C:\Streamer.bot</StreamerBotPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);_tests\bin\**;_tests\obj\**</DefaultItemExcludes>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>TestRunner</AssemblyName>
+    <StartupObject>StreamerBot.Tests.TestRunner</StartupObject>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <DefineConstants>EXTERNAL_EDITOR;GIVEAWAY_TESTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- NOTE: <Using> elements generate global using directives (C# 10.0+) -->
+    <!-- Commented out for C# 7.3 compatibility - add using statements manually in each file -->
+    <!-- <Using Include="Streamer.bot.Plugin.Interface" /> -->
+    <!-- <Using Include="Streamer.bot.Plugin.Interface.Model" /> -->
+    <!-- <Using Include="Streamer.bot.Plugin.Interface.Enums" /> -->
+    <!-- <Using Include="Streamer.bot.Common.Events" /> -->
+
+    <!-- Use backslashes for Windows compatibility -->
+    <Reference Include="$(StreamerBotPath)\Streamer.bot.Plugin.Interface.dll">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="$(StreamerBotPath)\Streamer.bot.Common.dll">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="$(StreamerBotPath)\Twitch.Common.dll">
+      <Private>true</Private>
+    </Reference>
+
+    <Reference Include="$(StreamerBotPath)\NAudio*.dll">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="$(StreamerBotPath)\Wpf*.dll">
+      <Private>true</Private>
+    </Reference>
+    <!-- Newtonsoft.Json: Use NuGet package for CI builds, local reference for Streamer.bot development -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" Condition="!Exists('$(StreamerBotPath)\Newtonsoft.Json.dll')" />
+    <Reference Include="$(StreamerBotPath)\Newtonsoft.Json.dll" Condition="Exists('$(StreamerBotPath)\Newtonsoft.Json.dll')">
+      <Private>true</Private>
+    </Reference>
+
+    <Reference Include="$(StreamerBotPath)\System.*.dll">
+      <Private>true</Private>
+    </Reference>
+
+    <Reference Include="System.Web">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem">
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <Private>true</Private>
+    </Reference>
+
+    <!-- Uncomment the following line to reference all dlls in the streamerbot directory -->
+    <!-- <Reference Include="$(StreamerBotPath)/**/*.dll" /> -->
+  </ItemGroup>
+</Project>
